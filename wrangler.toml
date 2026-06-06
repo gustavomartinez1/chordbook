@@ -1,0 +1,14 @@
+#:schema node_modules/@cloudflare/next-on-pages/.wrangler/config-schema.json
+name = "chordbook"
+compatibility_date = "2025-06-01"
+compatibility_flags = ["nodejs_compat"]
+
+pages_build_output_dir = ".vercel/output/static"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "chordbook-db"
+database_id = ""
+
+[vars]
+ENVIRONMENT = "production"
