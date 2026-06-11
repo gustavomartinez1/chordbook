@@ -2,7 +2,6 @@
 
 import { z } from 'zod';
 import { createClient } from '@/shared/lib/supabase/server';
-import { revalidatePath } from 'next/cache';
 
 const getCancionesSchema = z.object({
   busqueda: z.string().max(100).optional(),

@@ -5,7 +5,7 @@ const PUBLIC_ROUTES = ['/login', '/auth/confirm'];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  let response = NextResponse.next();
+  const response = NextResponse.next();
 
   // --- Security Headers ---
   response.headers.set('X-Frame-Options', 'DENY');

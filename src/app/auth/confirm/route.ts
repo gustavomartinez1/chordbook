@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
           getAll() {
             return request.cookies.getAll();
           },
-          setAll(cookiesToSet) {
+          setAll() {
             // Las cookies se manejan en la respuesta
           },
         },
