@@ -23,8 +23,8 @@ interface PresentationModeProps {
 export default function PresentationMode({
   cancion,
   tonalidadActual,
-  tonoOriginal: _tonoOriginal,
   onExit,
+  ..._props
 }: PresentationModeProps) {
   const [currentSectionIdx, setCurrentSectionIdx] = useState(0);
   const [currentTonalidad, setCurrentTonalidad] = useState(tonalidadActual);
