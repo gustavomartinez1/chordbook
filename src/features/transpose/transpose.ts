@@ -7,12 +7,26 @@
 
 // ─── Constantes ────────────────────────────────────────────────────
 
-/** Las 12 notas del círculo cromático en orden */
+/** Las 12 notas del círculo cromático en orden (sostenidos) */
 export const CHROMATIC = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'] as const;
 
 export type ChromaticNote = (typeof CHROMATIC)[number];
 
-/** Los 12 tonos mayores */
+/** Mapa de bemoles a sostenidos para normalizar cualquier entrada */
+const FLAT_TO_SHARP: Record<string, ChromaticNote> = {
+  'Db': 'C#',
+  'Eb': 'D#',
+  'Gb': 'F#',
+  'Ab': 'G#',
+  'Bb': 'A#',
+};
+
+/** Normaliza una nota: convierte bemoles a sostenidos. Ej: 'Bb' → 'A#' */
+export function normalizeNote(nota: string): string {
+  return FLAT_TO_SHARP[nota] ?? nota;
+}
+
+/** Los 12 tonos mayores (en orden del círculo de quintas) */
 export const TONOS = ['C', 'G', 'D', 'A', 'E', 'B', 'F#', 'C#', 'F', 'Bb', 'Eb', 'Ab'] as const;
 
 export type Tono = (typeof TONOS)[number];
@@ -34,8 +48,9 @@ export interface AcordeRaw {
  * Devuelve las 7 notas de la escala mayor para una tónica dada.
  * Ejemplo: getScale('C') → ['C','D','E','F','G','A','B']
  */
-export function getScale(root: ChromaticNote): string[] {
-  const rootIndex = CHROMATIC.indexOf(root);
+export function getScale(root: string): string[] {
+  const normalized = normalizeNote(root) as ChromaticNote;
+  const rootIndex = CHROMATIC.indexOf(normalized);
   if (rootIndex === -1) return [];
 
   return SCALE_INTERVALS.map((interval) => {
@@ -52,6 +67,7 @@ export function getScale(root: ChromaticNote): string[] {
  * Se mapea cada tono a su índice cromático.
  */
 function tonoToRootIndex(tono: Tono): number {
+  const normalized = normalizeNote(tono);
   const MAPA_TONO_RAIZ: Record<string, number> = {
     'C': 0,
     'G': 7,
@@ -62,11 +78,11 @@ function tonoToRootIndex(tono: Tono): number {
     'F#': 6,
     'C#': 1,
     'F': 5,
-    'Bb': 10,
-    'Eb': 3,
-    'Ab': 8,
+    'A#': 10,  // Bb → A#
+    'D#': 3,   // Eb → D#
+    'G#': 8,   // Ab → G#
   };
-  return MAPA_TONO_RAIZ[tono] ?? 0;
+  return MAPA_TONO_RAIZ[normalized] ?? 0;
 }
 
 // ─── Modificadores de acordes ──────────────────────────────────────
