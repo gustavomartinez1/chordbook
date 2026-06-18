@@ -6,6 +6,7 @@ import { deleteLinea } from '@/features/canciones/actions/deleteLinea';
 import { createLinea } from '@/features/canciones/actions/createLinea';
 import { updateLinea } from '@/features/canciones/actions/updateLinea';
 import EditarCancionClient from './EditarCancionClient';
+export const runtime = 'edge';
 
 interface PageProps {
   params: Promise<{ id: string }>;

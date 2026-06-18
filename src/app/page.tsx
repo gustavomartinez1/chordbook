@@ -3,6 +3,7 @@ import { createClient } from '@/shared/lib/supabase/server';
 import { Input } from '@/shared/components/ui/input';
 
 import {
+export const runtime = 'edge';
   Card,
   CardContent,
   CardHeader,
