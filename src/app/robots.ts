@@ -1,6 +1,8 @@
+export const runtime = 'edge';
+
 import type { MetadataRoute } from 'next';
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://chordbook.vercel.app';
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://veltrux-chordbook.pages.dev';
 
 export default function robots(): MetadataRoute.Robots {
   return {
