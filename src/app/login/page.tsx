@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import LoginForm from '@/features/auth/components/LoginForm';
-export const runtime = 'edge';
 
 export const metadata: Metadata = {
   title: 'Iniciar sesión',

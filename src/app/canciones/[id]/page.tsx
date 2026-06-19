@@ -2,7 +2,6 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { createClient } from '@/shared/lib/supabase/server';
 import CancionViewClient from './CancionViewClient';
-export const runtime = 'edge';
 
 interface PageProps {
   params: Promise<{ id: string }>;

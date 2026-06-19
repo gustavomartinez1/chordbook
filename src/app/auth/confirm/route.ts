@@ -1,7 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 
-export const runtime = 'edge';
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
