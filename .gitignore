@@ -43,6 +43,9 @@ yarn-error.log*
 .admin-uuid.txt
 *.local
 
+# open-next build output
+.open-next/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
