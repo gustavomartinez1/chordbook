@@ -1,6 +1,10 @@
+#:schema node_modules/@cloudflare/next-on-pages/.wrangler/config-schema.json
 name = "veltrux-chordbook"
 compatibility_date = "2025-06-17"
 compatibility_flags = ["nodejs_compat"]
 
 main = ".open-next/worker.js"
-assets = { directory = ".open-next/static-assets", binding = "STATIC_ASSETS" }
+
+[assets]
+directory = ".open-next/static-assets"
+binding = "STATIC_ASSETS"
