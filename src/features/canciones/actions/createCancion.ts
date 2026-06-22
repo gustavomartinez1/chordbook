@@ -44,7 +44,7 @@ export async function createCancion(formData: FormData) {
       tempo: parsed.data.tempo ?? null,
       compas: parsed.data.compas || null,
       notas: parsed.data.notas || null,
-      created_by: '00000000-0000-0000-0000-000000000000',
+      created_by: 'cd7a7d21-b8a8-4688-a6b5-e860ca17109f',
     })
     .select('id')
     .single();
