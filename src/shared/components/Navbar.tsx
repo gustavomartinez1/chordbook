@@ -1,36 +1,54 @@
-import Link from 'next/link';
-import { createClient } from '@/shared/lib/supabase/server';
-import { AuthButton } from '@/shared/components/AuthButton';
+'use client';
 
-export async function Navbar() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import AdminPinDialog from './AdminPinDialog';
+
+export function Navbar() {
+  const [isAdmin, setIsAdmin] = useState(() =>
+    typeof window !== 'undefined' ? sessionStorage.getItem('chordbook_admin') === 'true' : false
+  );
+  const [showPinDialog, setShowPinDialog] = useState(false);
+
+  const handleAdminSuccess = () => {
+    setIsAdmin(true);
+    setShowPinDialog(false);
+  };
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-md">
-      <nav className="max-w-6xl mx-auto flex items-center justify-between h-14 px-4">
-        {/* Logo */}
-        <Link
-          href="/"
-          className="flex items-center gap-2 font-bold text-lg tracking-tight hover:text-amber-400 transition-colors"
-        >
-          <span className="text-amber-400/80">♫</span>
-          CHORDBOOK
-        </Link>
-
-        {/* Right side */}
-        <div className="flex items-center gap-3">
-          <Link
-            href="/"
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Canciones
+    <>
+      <nav className="sticky top-0 z-40 border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-md">
+        <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
+          <Link href="/" className="flex items-center gap-2 text-lg font-bold tracking-tight text-zinc-100">
+            <span className="text-amber-400">♪</span>
+            CHORDBOOK
           </Link>
-          <AuthButton user={user} />
+
+          <div className="flex items-center gap-2">
+            {isAdmin && (
+              <Link
+                href="/canciones/nueva"
+                className="rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-amber-500"
+              >
+                + Nueva
+              </Link>
+            )}
+
+            <button
+              onClick={() => setShowPinDialog(true)}
+              className="rounded-lg border border-zinc-700 px-3 py-1.5 text-xs font-medium text-zinc-400 transition hover:border-zinc-600 hover:text-zinc-200"
+            >
+              {isAdmin ? '🔓 Admin' : '🔒 Admin'}
+            </button>
+          </div>
         </div>
       </nav>
-    </header>
+
+      <AdminPinDialog
+        isOpen={showPinDialog}
+        onClose={() => setShowPinDialog(false)}
+        onSuccess={handleAdminSuccess}
+      />
+    </>
   );
 }

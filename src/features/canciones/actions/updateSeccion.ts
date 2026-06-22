@@ -3,6 +3,8 @@
 import { z } from 'zod';
 import { createClient } from '@/shared/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { cookies } from 'next/headers';
+import { isAdminFromCookies } from '@/shared/lib/admin-check';
 
 const updateSeccionSchema = z.object({
   id: z.string().uuid(),
@@ -19,23 +21,23 @@ export async function updateSeccion(formData: FormData) {
 
   if (!parsed.success) {
     throw new Error(
-      'Datos inválidos: ' + JSON.stringify(parsed.error.flatten().fieldErrors)
+      'Datos invÃ¡lidos: ' + JSON.stringify(parsed.error.flatten().fieldErrors)
     );
   }
 
-  const supabase = await createClient();
 
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('No autorizado');
+    const cookieStore = await cookies();
+    if (!isAdminFromCookies(cookieStore)) throw new Error('Solo administradores');
 
-  const { id, ...data } = parsed.data;
+    const supabase = await createClient();
+    const { id, ...data } = parsed.data;
 
   const { error } = await supabase
     .from('cb_secciones')
     .update(data)
     .eq('id', id);
 
-  if (error) throw new Error('Error al actualizar sección: ' + error.message);
+  if (error) throw new Error('Error al actualizar secciÃ³n: ' + error.message);
 
   // Obtener cancion_id para revalidar
   const { data: seccion } = await supabase

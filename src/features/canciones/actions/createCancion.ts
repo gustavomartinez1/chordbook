@@ -3,8 +3,9 @@
 import { z } from 'zod';
 import { createClient } from '@/shared/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { cookies } from 'next/headers';
+import { isAdminFromCookies } from '@/shared/lib/admin-check';
 import { redirect } from 'next/navigation';
-import type { Database } from '@/shared/types/supabase';
 
 const createCancionSchema = z.object({
   titulo: z.string().min(1, 'El título es requerido').max(200),
@@ -26,29 +27,25 @@ export async function createCancion(formData: FormData) {
   });
 
   if (!parsed.success) {
-    throw new Error(
-      'Datos inválidos: ' + JSON.stringify(parsed.error.flatten().fieldErrors)
-    );
+    throw new Error('Datos inválidos: ' + JSON.stringify(parsed.error.flatten().fieldErrors));
   }
+
+  const cookieStore = await cookies();
+  if (!isAdminFromCookies(cookieStore)) throw new Error('Solo administradores');
 
   const supabase = await createClient();
 
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('No autorizado');
-
-  const insertData = {
-    titulo: parsed.data.titulo,
-    artista: parsed.data.artista || null,
-    tono_original: parsed.data.tono_original,
-    tempo: parsed.data.tempo ?? null,
-    compas: parsed.data.compas || null,
-    notas: parsed.data.notas || null,
-    created_by: user.id,
-  } satisfies Omit<Database['public']['Tables']['cb_canciones']['Insert'], 'id' | 'created_at' | 'updated_at'>;
-
   const { data, error } = await supabase
     .from('cb_canciones')
-    .insert(insertData)
+    .insert({
+      titulo: parsed.data.titulo,
+      artista: parsed.data.artista || null,
+      tono_original: parsed.data.tono_original,
+      tempo: parsed.data.tempo ?? null,
+      compas: parsed.data.compas || null,
+      notas: parsed.data.notas || null,
+      created_by: '00000000-0000-0000-0000-000000000000',
+    })
     .select('id')
     .single();
 

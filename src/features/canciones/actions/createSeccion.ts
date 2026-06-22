@@ -3,6 +3,8 @@
 import { z } from 'zod';
 import { createClient } from '@/shared/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { cookies } from 'next/headers';
+import { isAdminFromCookies } from '@/shared/lib/admin-check';
 
 const createSeccionSchema = z.object({
   cancion_id: z.string().uuid(),
@@ -19,22 +21,22 @@ export async function createSeccion(formData: FormData) {
 
   if (!parsed.success) {
     throw new Error(
-      'Datos inválidos: ' + JSON.stringify(parsed.error.flatten().fieldErrors)
+      'Datos invÃ¡lidos: ' + JSON.stringify(parsed.error.flatten().fieldErrors)
     );
   }
 
-  const supabase = await createClient();
 
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('No autorizado');
+    const cookieStore = await cookies();
+    if (!isAdminFromCookies(cookieStore)) throw new Error('Solo administradores');
 
-  const { data, error } = await supabase
+    const supabase = await createClient();
+    const { data, error } = await supabase
     .from('cb_secciones')
     .insert(parsed.data)
     .select('id')
     .single();
 
-  if (error) throw new Error('Error al crear sección: ' + error.message);
+  if (error) throw new Error('Error al crear secciÃ³n: ' + error.message);
 
   revalidatePath(`/canciones/${parsed.data.cancion_id}`);
   revalidatePath(`/canciones/${parsed.data.cancion_id}/editar`);

@@ -3,6 +3,8 @@
 import { z } from 'zod';
 import { createClient } from '@/shared/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { cookies } from 'next/headers';
+import { isAdminFromCookies } from '@/shared/lib/admin-check';
 
 const createLineaSchema = z.object({
   seccion_id: z.string().uuid(),
@@ -21,22 +23,22 @@ export async function createLinea(formData: FormData) {
 
   if (!parsed.success) {
     throw new Error(
-      'Datos inválidos: ' + JSON.stringify(parsed.error.flatten().fieldErrors)
+      'Datos invÃ¡lidos: ' + JSON.stringify(parsed.error.flatten().fieldErrors)
     );
   }
 
-  const supabase = await createClient();
 
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('No autorizado');
+    const cookieStore = await cookies();
+    if (!isAdminFromCookies(cookieStore)) throw new Error('Solo administradores');
 
-  const { data, error } = await supabase
+    const supabase = await createClient();
+    const { data, error } = await supabase
     .from('cb_lineas')
     .insert(parsed.data)
     .select('id')
     .single();
 
-  if (error) throw new Error('Error al crear línea: ' + error.message);
+  if (error) throw new Error('Error al crear lÃ­nea: ' + error.message);
 
   // Obtener cancion_id para revalidar
   const { data: seccion } = await supabase

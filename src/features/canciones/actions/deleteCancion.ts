@@ -3,6 +3,8 @@
 import { z } from 'zod';
 import { createClient } from '@/shared/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { cookies } from 'next/headers';
+import { isAdminFromCookies } from '@/shared/lib/admin-check';
 import { redirect } from 'next/navigation';
 
 const deleteCancionSchema = z.object({
@@ -18,21 +20,10 @@ export async function deleteCancion(formData: FormData) {
     throw new Error('ID inválido');
   }
 
+  const cookieStore = await cookies();
+  if (!isAdminFromCookies(cookieStore)) throw new Error('Solo administradores');
+
   const supabase = await createClient();
-
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('No autorizado');
-
-  // Verificar que el usuario es admin
-  const { data: rol } = await supabase
-    .from('cb_roles')
-    .select('rol')
-    .eq('user_id', user.id)
-    .single();
-
-  if (rol?.rol !== 'admin') {
-    throw new Error('Solo administradores pueden eliminar canciones');
-  }
 
   const { error } = await supabase
     .from('cb_canciones')
