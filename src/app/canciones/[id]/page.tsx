@@ -1,6 +1,8 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { createClient } from '@/shared/lib/supabase/server';
+import { cookies } from 'next/headers';
+import { isAdminFromCookies } from '@/shared/lib/admin-check';
 import CancionViewClient from './CancionViewClient';
 
 interface PageProps {
@@ -44,20 +46,6 @@ async function getCancion(id: string) {
   };
 }
 
-async function getUserRole() {
-  const supabase = await createClient();
-  const { data: user } = await supabase.auth.getUser();
-  if (!user?.user) return null;
-
-  const { data } = await supabase
-    .from('cb_roles')
-    .select('rol')
-    .eq('user_id', user.user.id)
-    .single();
-
-  return (data?.rol as string) ?? null;
-}
-
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
   const cancion = await getCancion(id);
@@ -76,11 +64,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function CancionPage({ params }: PageProps) {
   const { id } = await params;
-  const [cancion, role] = await Promise.all([getCancion(id), getUserRole()]);
 
+  const cancion = await getCancion(id);
   if (!cancion) notFound();
 
-  const isAdmin = role === 'admin';
+  const cookieStore = await cookies();
+  const isAdmin = isAdminFromCookies(cookieStore);
 
   // JSON-LD
   const jsonLd = {
