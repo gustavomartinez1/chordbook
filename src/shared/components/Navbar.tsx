@@ -1,18 +1,23 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import AdminPinDialog from './AdminPinDialog';
 
 export function Navbar() {
-  const [isAdmin, setIsAdmin] = useState(() =>
-    typeof window !== 'undefined' ? sessionStorage.getItem('chordbook_admin') === 'true' : false
+  const [isAdmin, setIsAdmin] = useState(
+    () => typeof window !== 'undefined' ? sessionStorage.getItem('chordbook_pin') !== null : false
   );
   const [showPinDialog, setShowPinDialog] = useState(false);
 
-  const handleAdminSuccess = () => {
+  const handleAdminSuccess = (_pin: string) => {
     setIsAdmin(true);
     setShowPinDialog(false);
+  };
+
+  const handleLogout = () => {
+    sessionStorage.removeItem('chordbook_pin');
+    setIsAdmin(false);
   };
 
   return (
@@ -26,20 +31,20 @@ export function Navbar() {
 
           <div className="flex items-center gap-2">
             {isAdmin && (
-              <Link
-                href="/canciones/nueva"
-                className="rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-amber-500"
-              >
-                + Nueva
-              </Link>
+              <>
+                <Link href="/canciones/nueva" className="rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-amber-500">
+                  + Nueva
+                </Link>
+                <button onClick={handleLogout} className="rounded-lg border border-zinc-700 px-2 py-1.5 text-xs text-zinc-500 transition hover:text-zinc-300">
+                  Salir
+                </button>
+              </>
             )}
-
-            <button
-              onClick={() => setShowPinDialog(true)}
-              className="rounded-lg border border-zinc-700 px-3 py-1.5 text-xs font-medium text-zinc-400 transition hover:border-zinc-600 hover:text-zinc-200"
-            >
-              {isAdmin ? '🔓 Admin' : '🔒 Admin'}
-            </button>
+            {!isAdmin && (
+              <button onClick={() => setShowPinDialog(true)} className="rounded-lg border border-zinc-700 px-3 py-1.5 text-xs font-medium text-zinc-400 transition hover:border-zinc-600 hover:text-zinc-200">
+                🔒 Admin
+              </button>
+            )}
           </div>
         </div>
       </nav>

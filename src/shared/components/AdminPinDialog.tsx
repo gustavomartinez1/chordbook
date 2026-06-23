@@ -5,7 +5,7 @@ import { useState } from 'react';
 interface AdminPinDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (pin: string) => void;
 }
 
 export default function AdminPinDialog({ isOpen, onClose, onSuccess }: AdminPinDialogProps) {
@@ -26,17 +26,16 @@ export default function AdminPinDialog({ isOpen, onClose, onSuccess }: AdminPinD
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ pin }),
       });
-
       const data = await res.json();
 
       if (data.success) {
-        sessionStorage.setItem('chordbook_admin', 'true');
-        onSuccess();
+        sessionStorage.setItem('chordbook_pin', pin);
+        onSuccess(pin);
       } else {
         setError('PIN incorrecto');
       }
     } catch {
-      setError('Error al verificar PIN');
+      setError('Error de conexión');
     } finally {
       setLoading(false);
     }
@@ -60,23 +59,15 @@ export default function AdminPinDialog({ isOpen, onClose, onSuccess }: AdminPinD
             autoFocus
           />
 
-          {error && (
-            <p className="text-center text-sm text-red-400">{error}</p>
-          )}
+          {error && <p className="text-center text-sm text-red-400">{error}</p>}
 
           <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 rounded-lg border border-zinc-600 px-4 py-2.5 text-sm font-medium text-zinc-300 transition hover:bg-zinc-800"
-            >
+            <button type="button" onClick={onClose}
+              className="flex-1 rounded-lg border border-zinc-600 px-4 py-2.5 text-sm font-medium text-zinc-300 transition hover:bg-zinc-800">
               Cancelar
             </button>
-            <button
-              type="submit"
-              disabled={loading || pin.length < 3}
-              className="flex-1 rounded-lg bg-amber-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-amber-500 disabled:opacity-50"
-            >
+            <button type="submit" disabled={loading || pin.length < 3}
+              className="flex-1 rounded-lg bg-amber-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-amber-500 disabled:opacity-50">
               {loading ? 'Verificando...' : 'Ingresar'}
             </button>
           </div>
