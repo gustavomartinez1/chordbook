@@ -3,8 +3,7 @@
 import { z } from 'zod';
 import { createClient } from '@/shared/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
-import { cookies } from 'next/headers';
-import { isAdminFromCookies } from '@/shared/lib/admin-check';
+import { verifyPin } from '@/shared/lib/admin-check';
 import { redirect } from 'next/navigation';
 
 const deleteCancionSchema = z.object({
@@ -20,10 +19,7 @@ export async function deleteCancion(formData: FormData) {
     throw new Error('ID inválido');
   }
 
-  const cookieStore = await cookies();
-  if (!isAdminFromCookies(cookieStore)) throw new Error('Solo administradores');
-
-  const supabase = await createClient();
+    const supabase = await createClient();
 
   const { error } = await supabase
     .from('cb_canciones')

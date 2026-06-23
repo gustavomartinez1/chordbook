@@ -3,8 +3,7 @@
 import { z } from 'zod';
 import { createClient } from '@/shared/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
-import { cookies } from 'next/headers';
-import { isAdminFromCookies } from '@/shared/lib/admin-check';
+import { verifyPin } from '@/shared/lib/admin-check';
 
 const updateCancionSchema = z.object({
   id: z.string().uuid(),
@@ -36,10 +35,7 @@ export async function updateCancion(formData: FormData) {
   }
 
 
-    const cookieStore = await cookies();
-    if (!isAdminFromCookies(cookieStore)) throw new Error('Solo administradores');
-
-    const supabase = await createClient();
+        const supabase = await createClient();
     const { id, ...data } = parsed.data;
 
   const { error } = await supabase
