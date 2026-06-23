@@ -3,17 +3,17 @@
 import { z } from 'zod';
 import { createClient } from '@/shared/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
-import { cookies } from 'next/headers';
-import { isAdminFromCookies } from '@/shared/lib/admin-check';
 import { redirect } from 'next/navigation';
+import { verifyPin } from '@/shared/lib/admin-check';
 
 const createCancionSchema = z.object({
   titulo: z.string().min(1, 'El título es requerido').max(200),
   artista: z.string().max(200).default(''),
-  tono_original: z.string().length(1, { message: 'Tono inválido' }).or(z.string().length(2)),
+  tono_original: z.string().min(1).max(2),
   tempo: z.coerce.number().int().min(30).max(250).optional().nullable(),
   compas: z.string().default('4/4'),
   notas: z.string().max(2000).default(''),
+  admin_pin: z.string().min(1, 'PIN requerido'),
 });
 
 export async function createCancion(formData: FormData) {
@@ -24,14 +24,16 @@ export async function createCancion(formData: FormData) {
     tempo: formData.get('tempo') || null,
     compas: formData.get('compas') || '4/4',
     notas: formData.get('notas') || '',
+    admin_pin: formData.get('admin_pin') || '',
   });
 
   if (!parsed.success) {
-    throw new Error('Datos inválidos: ' + JSON.stringify(parsed.error.flatten().fieldErrors));
+    return { success: false, error: 'Datos inválidos: ' + JSON.stringify(parsed.error.flatten().fieldErrors) };
   }
 
-  const cookieStore = await cookies();
-  if (!isAdminFromCookies(cookieStore)) throw new Error('Solo administradores');
+  if (!verifyPin(parsed.data.admin_pin)) {
+    return { success: false, error: 'PIN de administrador incorrecto' };
+  }
 
   const supabase = await createClient();
 
@@ -49,7 +51,9 @@ export async function createCancion(formData: FormData) {
     .select('id')
     .single();
 
-  if (error) throw new Error('Error al crear canción: ' + error.message);
+  if (error) {
+    return { success: false, error: 'Error al crear canción: ' + error.message };
+  }
 
   revalidatePath('/');
   redirect(`/canciones/${data.id}/editar`);
