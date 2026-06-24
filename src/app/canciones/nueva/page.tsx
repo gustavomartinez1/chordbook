@@ -142,7 +142,6 @@ function parseInlineChords(text: string, tono: string): string {
   const acordes: string[] = [];
   let charPos = 0;
 
-  let cleanText = text;
   while ((match = regex.exec(text)) !== null) {
     const notaBase = match[1]; charPos = match.index - (acordes.length > 0 ? 1 : 0) * (1);
     // Calculate position in clean text (without brackets)
@@ -165,7 +164,7 @@ function ChordPreviewView({ text, tono }: { text: string; tono: string }) {
 
   // Extraer [acordes] y generar preview
   const regex = /\[([A-G][#b]?)([^\]]*)\]/g;
-  let cleanLyric = text.replace(regex, '');
+  const cleanLyric = text.replace(regex, '');
   const chords: { nota: string; pos: number }[] = [];
   let m;
   while ((m = regex.exec(text)) !== null) {

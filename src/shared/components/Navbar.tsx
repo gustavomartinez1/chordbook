@@ -5,9 +5,10 @@ import { useState } from 'react';
 import AdminPinDialog from './AdminPinDialog';
 
 export function Navbar() {
-  const [isAdmin, setIsAdmin] = useState(
-    () => typeof window !== 'undefined' ? sessionStorage.getItem('chordbook_pin') !== null : false
-  );
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  // Check for admin PIN on mount (client-side only)
+  useState(() => { if (typeof window !== 'undefined') setIsAdmin(sessionStorage.getItem('chordbook_pin') !== null); });
   const [showPinDialog, setShowPinDialog] = useState(false);
 
   const handleAdminSuccess = (_pin: string) => {
