@@ -4,11 +4,13 @@ import Link from 'next/link';
 import { useState } from 'react';
 import AdminPinDialog from './AdminPinDialog';
 
-export function Navbar() {
-  const [isAdmin, setIsAdmin] = useState(false);
+function getInitialAdmin(): boolean {
+  if (typeof window === 'undefined') return false;
+  try { return sessionStorage.getItem('chordbook_pin') !== null; } catch { return false; }
+}
 
-  // Check for admin PIN on mount (client-side only)
-  useState(() => { if (typeof window !== 'undefined') setIsAdmin(sessionStorage.getItem('chordbook_pin') !== null); });
+export function Navbar() {
+  const [isAdmin, setIsAdmin] = useState(getInitialAdmin);
   const [showPinDialog, setShowPinDialog] = useState(false);
 
   const handleAdminSuccess = (_pin: string) => {
